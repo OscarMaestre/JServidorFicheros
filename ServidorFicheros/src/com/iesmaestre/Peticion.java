@@ -2,6 +2,7 @@
 package com.iesmaestre;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -99,15 +100,20 @@ public class Peticion implements Runnable{
         FileInputStream ficheroBytes;
         ficheroBytes=new FileInputStream(
                 nombreCompletoFichero);
+        DataInputStream dis=new DataInputStream(ficheroBytes);
         byte[] buffer=new byte[Constantes.TAM_BUFFER];
-        int numBytesLeidos = ficheroBytes.read(buffer);
-        while (numBytesLeidos != -1){
+        int numBytesLeidos = dis.read(buffer);
+        while (numBytesLeidos >0){
             System.out.println("El servidor leyó"
                     + "estos bytes:"+numBytesLeidos);
             this.os.write(buffer, 0, numBytesLeidos);
-            numBytesLeidos = ficheroBytes.read(buffer);
+            System.out.println("Se enviaron los bytes a través de la red");
+            numBytesLeidos = dis.read(buffer);
+            System.out.println("Se leyo:"+numBytesLeidos);
         }
+        System.out.println("Saliendo...");
         this.os.flush();
+        this.os.close();
         ficheroBytes.close();
         
     }

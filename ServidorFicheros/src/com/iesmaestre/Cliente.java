@@ -2,6 +2,8 @@
 package com.iesmaestre;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -67,16 +69,21 @@ public class Cliente {
         }
         byte[] buffer=new byte[167];
         FileOutputStream ficheroRecibido;
+        
         String rutaCompleta=this.directorioFicherosRecibidos+
                 File.separator + nombreFichero;
         ficheroRecibido=new FileOutputStream(rutaCompleta);
+        DataInputStream dis=new DataInputStream(this.is);
         int numBytesLeidos = this.is.read(buffer);
-        while (numBytesLeidos != -1){
+        while (numBytesLeidos >0){
             ficheroRecibido.write(buffer, 
                     0, numBytesLeidos);
-            System.out.println("Recibido un bloque de fichero");
-            numBytesLeidos = this.is.read(buffer);
+            System.out.println("Recibido un bloque de fichero de tam "+numBytesLeidos);
+            numBytesLeidos = dis.read(buffer);
+            System.out.println("Se leyo:"+numBytesLeidos);
         }
+        System.out.println("Saliendo");
+        this.enviarLinea("FIN");
         ficheroRecibido.flush();
         ficheroRecibido.close();
     }
@@ -93,8 +100,8 @@ public class Cliente {
         this.recibir("Protocolo.txt");
     }
     public void tests() throws IOException{
-        testListadoFicheros();
-        testGetFicheroIncorrecto();
+        //testListadoFicheros();
+        //testGetFicheroIncorrecto();
         testGetFicheroCorrecto();
     }
     public static void main(String[] argumentos) throws IOException{
