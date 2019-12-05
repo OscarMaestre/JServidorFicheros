@@ -3,6 +3,7 @@ package com.iesmaestre;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,29 +19,25 @@ import java.util.logging.Logger;
 public class Peticion implements Runnable{
 
     private final Socket socket;
-    private OutputStream os;
-    private InputStream is;
-    private PrintWriter pw;
-    private BufferedReader bfr;
+    private DataOutputStream salida;
+    private DataInputStream  entrada;
     private final String directorioFicheros="C:\\Users\\ogomez\\"
                 + "Documents\\servidorficheros";
-
+    
     Peticion(Socket conexionEntrante) throws IOException {
         this.socket=conexionEntrante;
         this.construirFlujos();
     }
 
     private void construirFlujos() throws IOException{
-        os=socket.getOutputStream();
-        is=socket.getInputStream();
-        
-        pw =Utilidades.getPrintWriter(os);
-        bfr=Utilidades.getBufferedReader(is);
+        salida  =new DataOutputStream(socket.getOutputStream());
+        entrada =new DataInputStream (socket.getInputStream() );
     }
+    
     @Override
     public void run() {
         try {
-            String linea=this.bfr.readLine();
+            String linea=this.entrada.readUTF();
             while (!linea.equals(Constantes.FIN)){
                 if (linea.equals(Constantes.LISTAR)){
                     enviarListadoFicheros();
@@ -48,18 +45,19 @@ public class Peticion implements Runnable{
                 if (linea.equals(Constantes.GET)){
                     String nombreFicheroParaDescargar;
                     nombreFicheroParaDescargar=
-                            this.bfr.readLine();
+                            this.entrada.readUTF();
                     descargarFichero(
                             nombreFicheroParaDescargar);
                 }
-                linea=this.bfr.readLine();
+                linea=this.entrada.readUTF();
             }
+            System.out.println("Cliente cerró la conexion");
         } catch (IOException ex) {
             Logger.getLogger(Peticion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void enviarListadoFicheros() {
+    private void enviarListadoFicheros() throws IOException {
       
         /* Primero averiguarmos cuantos ficheros
         hay en dicha carpeta y enviamos ese número al cliente        */
@@ -68,12 +66,12 @@ public class Peticion implements Runnable{
         y vamos enviando los nombres al cliente*/
         File[] listaFicheros = directorio.listFiles();
         /* Enviamos la cantidad de ficheros que hay*/
-        pw.println(listaFicheros.length);
+        this.salida.writeInt(listaFicheros.length);
         for (File f:listaFicheros){
             String nombreFichero=f.getName();
-            pw.println(nombreFichero);
+            this.salida.writeUTF(nombreFichero);
         }
-        pw.flush();
+        this.salida.flush();
         
     }
 
@@ -85,37 +83,19 @@ public class Peticion implements Runnable{
         System.out.println(nombreCompletoFichero);
         File f=new File(nombreCompletoFichero);
         if (!f.exists()){
-            this.pw.println(Constantes.ERROR);
-            this.pw.flush();
+            this.salida.writeUTF(Constantes.ERROR);
+            this.salida.flush();
             return ;
         }
-        this.pw.println(Constantes.EXITO);
-        this.pw.flush();
+        this.salida.writeUTF(Constantes.EXITO);
+        this.salida.flush();
                 
         /* Si llegamos aquí el fichero existe y hay que
         enviarlo a través de la red por bytes */
         System.out.println("Enviando fichero:"+
                 nombreCompletoFichero);
         /* Enviamos el fichero a través de la red*/
-        FileInputStream ficheroBytes;
-        ficheroBytes=new FileInputStream(
-                nombreCompletoFichero);
-        DataInputStream dis=new DataInputStream(ficheroBytes);
-        byte[] buffer=new byte[Constantes.TAM_BUFFER];
-        int numBytesLeidos = dis.read(buffer);
-        while (numBytesLeidos >0){
-            System.out.println("El servidor leyó"
-                    + "estos bytes:"+numBytesLeidos);
-            this.os.write(buffer, 0, numBytesLeidos);
-            System.out.println("Se enviaron los bytes a través de la red");
-            numBytesLeidos = dis.read(buffer);
-            System.out.println("Se leyo:"+numBytesLeidos);
-        }
-        System.out.println("Saliendo...");
-        this.os.flush();
-        this.os.close();
-        ficheroBytes.close();
-        
+        Utilidades.enviarFichero(socket, nombreCompletoFichero, Constantes.TAM_BUFFER);
     }
 
 }
