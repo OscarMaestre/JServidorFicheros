@@ -1,0 +1,27 @@
+Servidor de ficheros:
+
+Escenario 0: Un cliente puede desconectar en cualquier momento enviando "FIN"
+
+Escenario 1: El cliente quiere saber qué ficheros hay
+
+01-->El cliente envía una línea "DIR"
+02-->El servidor envía al cliente dos cosas:
+		02.a--> Una línea con un número, que indica la cantidad de ficheros
+		02.b-->Una secuencia de líneas con los nombres de fichero que hay alojados en el servidor.
+		
+Escenario 2: El cliente desea almacenar un fichero
+00-->Envía una línea con la palabra PUT.
+01-->Envía una línea con el nombre de fichero
+02-->Envía una línea con el tamaño del fichero en bytes.
+03-->Envía el fichero byte a byte.
+El servidor debe leer estos datos y recibir el fichero. Al terminar enviará al cliente unas de estas dos cadenas "OK" o "FALLO"
+04-->El cliente lee el resultado y lo muestra en pantalla.
+
+Escenario 3: El cliente desea descargar un fichero.
+
+01-->Enviar una línea con la palabra "GET"
+02-->Envia otra línea con el nombre del fichero
+Ahora el servidor puede hacer dos cosas
+03.a-->Si el fichero existe envia "OK" y despues envía el fichero byte por byte
+03.b-->Si el fichero no existe se envía "FALLO" y se cierra la conexión
+

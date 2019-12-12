@@ -54,8 +54,12 @@ public class Cliente {
         
     }
     
-    public void enviar(String rutaFichero){
-        
+    public void enviar(String fichero) throws IOException{
+        this.salida.writeUTF(Constantes.PUT);
+        this.salida.writeUTF("Archivo.zip");
+        Utilidades.enviarFichero(socket, 
+                fichero, 8192);
+        this.salida.writeUTF(Constantes.FIN);
     }
     
     public void recibir(String nombreFichero) throws IOException, InterruptedException{
@@ -100,6 +104,13 @@ public class Cliente {
         //testListadoFicheros();
         //testGetFicheroIncorrecto();
         testGetFicheroCorrecto();
+        testEnviarFicheroServidor();
+    }
+    public void testEnviarFicheroServidor() throws IOException{
+        String ruta="C:\\Users\\ogomez\\Documents\\"
+                + "NetBeansProjects\\Chat.zip";
+        this.establecerConexion();
+        this.enviar(ruta);
     }
     public static void main(String[] argumentos) throws IOException, InterruptedException{
         Cliente c=new Cliente();

@@ -43,6 +43,17 @@ public class Peticion implements Runnable{
                 if (linea.equals(Constantes.LISTAR)){
                     enviarListadoFicheros();
                 }
+                
+                if (linea.equals(Constantes.PUT)){
+                    String nombreFicheroParaRecibir;
+                    nombreFicheroParaRecibir=
+                            this.entrada.readUTF();
+                    System.out.println("Cliente enviando fichero:"+
+                            nombreFicheroParaRecibir);
+                    this.recibirFichero(
+                        nombreFicheroParaRecibir);
+                }
+                
                 if (linea.equals(Constantes.GET)){
                     String nombreFicheroParaDescargar;
                     nombreFicheroParaDescargar=
@@ -97,6 +108,19 @@ public class Peticion implements Runnable{
                 nombreCompletoFichero);
         /* Enviamos el fichero a través de la red*/
         Utilidades.enviarFichero(socket, nombreCompletoFichero, Constantes.TAM_BUFFER);
+    }
+    
+    private void recibirFichero(String nombreFichero) throws IOException{
+        String rutaCompletaFicheroRecibido;
+        rutaCompletaFicheroRecibido=
+            this.directorioFicheros + File.separator +
+                nombreFichero;
+        System.out.println("Almacenandolo en:"+
+                rutaCompletaFicheroRecibido);
+        Utilidades.recibirFichero(socket, 
+                rutaCompletaFicheroRecibido, 
+                Constantes.TAM_BUFFER);
+        
     }
 
 }
