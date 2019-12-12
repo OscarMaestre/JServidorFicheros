@@ -55,13 +55,21 @@ public class Cliente {
     }
     
     public void enviar(String fichero) throws IOException{
-        this.salida.writeUTF(Constantes.PUT);
-        this.salida.writeUTF("Archivo.zip");
+        
+        
+        this.enviarLinea(Constantes.PUT);
+        this.enviarLinea("Archivo.zip");
+        
         Utilidades.enviarFichero(socket, 
-                fichero, 8192);
-        this.salida.writeUTF(Constantes.FIN);
+                fichero, Constantes.TAM_BUFFER);
+        this.cerrarConexionConServidor();
     }
     
+    public void cerrarConexionConServidor() throws IOException{
+        this.enviarLinea(Constantes.FIN);
+        this.socket.shutdownOutput();
+        this.socket.close();
+    }
     public void recibir(String nombreFichero) throws IOException, InterruptedException{
         
         this.salida.writeUTF(Constantes.GET);
@@ -83,10 +91,7 @@ public class Cliente {
         Utilidades.recibirFichero(socket, nombreFichero, 167);
 
         /*Una vez recibido todo avisamos al servidor de que cerramos*/       
-        this.enviarLinea("FIN");
-        
-        this.socket.shutdownOutput();
-        this.socket.close();
+        this.cerrarConexionConServidor();
     }
     public void testListadoFicheros() throws IOException{
         this.establecerConexion();
@@ -103,12 +108,13 @@ public class Cliente {
     public void tests() throws IOException, InterruptedException{
         //testListadoFicheros();
         //testGetFicheroIncorrecto();
-        //testGetFicheroCorrecto();
-        testEnviarFicheroServidor();
+        testGetFicheroCorrecto();
+        //testEnviarFicheroServidor();
     }
     public void testEnviarFicheroServidor() throws IOException{
-        String ruta="C:\\Users\\ogomez\\Documents\\"
-                + "NetBeansProjects\\Chat.zip";
+        //String ruta="C:\\Users\\ogomez\\Documents\\"
+              //+ "NetBeansProjects\\Chat.zip";
+        String ruta="/home/usuario/repos/JServidorFicheros/LICENSE";
         this.establecerConexion();
         this.enviar(ruta);
     }

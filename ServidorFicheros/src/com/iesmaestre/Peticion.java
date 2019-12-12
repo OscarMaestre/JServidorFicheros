@@ -22,9 +22,9 @@ public class Peticion implements Runnable{
     private final Socket socket;
     private DataOutputStream salida;
     private DataInputStream  entrada;
-    private final String directorioFicheros="C:\\Users\\ogomez\\"
-                + "Documents\\servidorficheros";
-    
+    //private final String directorioFicheros="C:\\Users\\ogomez\\"
+    //            + "Documents\\servidorficheros";
+    private final String directorioFicheros="/home/usuario/repos/JServidorFicheros";
     Peticion(Socket conexionEntrante) throws IOException {
         this.socket=conexionEntrante;
         this.construirFlujos();
