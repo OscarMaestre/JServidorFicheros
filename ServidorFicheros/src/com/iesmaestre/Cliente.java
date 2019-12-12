@@ -103,7 +103,7 @@ public class Cliente {
     public void tests() throws IOException, InterruptedException{
         //testListadoFicheros();
         //testGetFicheroIncorrecto();
-        testGetFicheroCorrecto();
+        //testGetFicheroCorrecto();
         testEnviarFicheroServidor();
     }
     public void testEnviarFicheroServidor() throws IOException{
